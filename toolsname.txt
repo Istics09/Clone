@@ -1,0 +1,106 @@
+1. Nikto (Webalkalmazások vizsgálata)
+Funkció: Webszerver sebezhetőség-vizsgáló eszköz, amely feltárja az ismert sebezhetőségeket, rosszul konfigurált szervereket és veszélyes fájlokat.
+Használat:
+bash
+Copy code
+nikto -h http://example.com
+Integráció: Nikto-t subprocess-en keresztül futtathatod, és az eredményt kiírathatod a GUI-ba.
+GitHub: https://github.com/sullo/nikto
+
+2. SQLmap (Adatbázis sebezhetőség vizsgálat)
+Funkció: SQL injection tesztelő eszköz, amely automatikusan ellenőrzi és kihasználja az SQL alapú sebezhetőségeket.
+Használat:
+bash
+Copy code
+sqlmap -u "http://example.com?id=1" --dbs
+Integráció: Opcionálisan lehetőséget adhatsz a cél URL megadására és a támadások testreszabására.
+GitHub: https://github.com/sqlmapproject/sqlmap
+
+3. Metasploit Framework
+Funkció: Támadási keretrendszer, amely lehetővé teszi a sebezhetőségek kihasználását és exploitok futtatását.
+Használat:
+bash
+Copy code
+msfconsole
+Integráció: Bár nehezebb integrálni, az msfconsole bizonyos parancsait subprocess-en keresztül használhatod, vagy egyszerűen a GUI-ból indíthatod.
+Weboldal: https://www.metasploit.com/
+
+4. Dirsearch (Könyvtárfeltárás alternatívája a Gobusterhez)
+Funkció: Python-alapú könyvtárfeltáró eszköz, hasonló a Gobusterhez, de sok testreszabási lehetőséggel.
+Használat:
+bash
+Copy code
+python3 dirsearch.py -u http://example.com -w wordlist.txt
+Integráció: A Gobuster helyettesítőjeként vagy kiegészítéseként is használhatod.
+GitHub: https://github.com/maurosoria/dirsearch
+
+5. John the Ripper (Jelszófeltörés)
+Funkció: Erőteljes jelszófeltörő eszköz, amely különféle hash típusokat támogat (pl. MD5, SHA256).
+Használat:
+bash
+Copy code
+john --wordlist=passwords.txt hash.txt
+Integráció: GUI-dba hozzáadhatod hash fájlok feltöltésének és a törés indításának lehetőségét.
+GitHub: https://github.com/openwall/john
+
+6. WPScan (WordPress sebezhetőség vizsgáló)
+Funkció: WordPress weboldalak sebezhetőségeinek vizsgálatára specializált eszköz.
+Használat:
+bash
+Copy code
+wpscan --url http://example.com --enumerate vp
+Integráció: Kifejezetten WordPress weboldalak vizsgálatához hasznos.
+GitHub: https://github.com/wpscanteam/wpscan
+
+7. Hashcat (GPU-alapú jelszófeltörés)
+Funkció: Gyors jelszófeltörés hash-ek alapján GPU segítségével.
+Használat:
+bash
+Copy code
+hashcat -a 0 -m 0 hashes.txt passwords.txt
+Integráció: Hasznos lehet GPU-val rendelkező rendszerekhez. Lehetővé teheted a hash fájl feltöltését és törési opciók kiválasztását.
+Weboldal: https://hashcat.net/hashcat/
+
+8. WhatWeb (Webalkalmazások fingerprintelése)
+Funkció: Weboldalak fingerprintelése, technológiák, verziók és sebezhetőségek detektálása.
+Használat:
+bash
+Copy code
+whatweb http://example.com
+Integráció: Könnyen hozzáadható a GUI-hoz a subprocess modullal.
+GitHub: https://github.com/urbanadventurer/WhatWeb
+
+9. Aircrack-ng (Wi-Fi hálózatok tesztelése)
+Funkció: Vezeték nélküli hálózatok biztonsági vizsgálata és támadása.
+Használat:
+bash
+Copy code
+airodump-ng wlan0
+aircrack-ng -b [BSSID] capture.cap
+Integráció: Ha vezeték nélküli hálózatokat is szeretnél tesztelni, ez az eszköz elengedhetetlen.
+Weboldal: https://www.aircrack-ng.org/
+
+10. Burp Suite (Proxy eszköz)
+Funkció: Webes támadások automatizálására és tesztelésére szolgáló proxy eszköz.
+Használat: Grafikus felületű eszköz, de automatizálható Python API-val.
+Integráció: Beágyazhatod egy külön ablakként a GUI-dba, vagy linkelheted a parancssoros futtatását.
+Weboldal: https://portswigger.net/burp
+
+11. DNSenum (DNS feltérképezés)
+Funkció: DNS-alapú információgyűjtés (aldomain-ek, SOA rekordok, stb.).
+Használat:
+bash
+Copy code
+dnsenum example.com
+Integráció: Hasznos a DNS-információk feltérképezéséhez.
+GitHub: https://github.com/fwaeytens/dnsenum
+
+12. TheHarvester (Információgyűjtés)
+Funkció: Információgyűjtés keresőmotorok és nyilvános adatbázisok segítségével.
+Használat:
+bash
+Copy code
+theharvester -d example.com -b google
+Integráció: Tökéletes választás reconnaissance fázishoz.
+GitHub: https://github.com/laramies/theHarvester
+
