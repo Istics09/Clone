@@ -4,13 +4,13 @@ import tkinter.font as tkfont
 import subprocess, threading, os, signal, datetime, logging, getpass, automatizate_test
 import cheat_sheet
 
-
+# Globálne premenné
 current_process = None
 open_frame = None
 target = "{Domain/IP}"
 port = "{Port/Služba}"
 
-
+# Inicializácia logovania
 x = datetime.datetime.now()
 if not os.path.exists("logs"):
     os.makedirs("logs")
@@ -21,11 +21,12 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+# Funkcia na spustenie automatizovaného testu
 def auto_testing():
     automatizate_test.main()
 
 def airmon_ng(Name):
-    
+    """Spustí príkazy ifconfig a airmon-ng/ifconfig podľa potreby a zobrazí ich výstup."""
     try:
         result = subprocess.run("ifconfig", shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         output = result.stdout
@@ -45,7 +46,7 @@ def airmon_ng(Name):
         output_text.config(state="disabled")
 
 def Run_Command():
-
+    """Spustí príkaz zadaný do vstupného poľa v samostatnom vlákne."""
     global current_process
     command = command_input.get()
     if not command.strip():
@@ -56,7 +57,7 @@ def Run_Command():
     thread.start()
 
 def run_in_thread(command):
-
+    """Spustí príkaz v samostatnom vlákne s reálnym výstupom."""
     global current_process
     try:
         current_process = subprocess.Popen(
@@ -110,6 +111,7 @@ def copy_to_clipboard(event=None):
         print("Žiadny vybraný text.")
 
 def create_console():
+    """Vytvorí konzolu v strednom paneli, ak ešte neexistuje."""
     global output_text, command_input, center_frame
     if 'output_text' in globals() and output_text.winfo_exists():
         return
@@ -124,31 +126,20 @@ def create_console():
     command_input.bind("<Return>", lambda event: Run_Command())
 
 def Run_Button_command(command):
-    global command_input, target
+    """Nastaví príkaz do vstupného poľa konzoly."""
+    global command_input
+    if logging_enabled.get():
+        logging.info("Spúšťam príkaz: %s", command)
     command_input.delete(0, tk.END)
-
-    needle = "{target}"
-    index = command.find(needle)
-    if not index == -1:
-        cmd1 = command[:index] 
-        cmd2 = command[index + len(needle):] 
-        command = cmd1 + target + cmd2
-
-    needle = "{port}"
-    index = command.find(needle)
-    if not index == -1:
-        cmd1 = command[:index]
-        cmd2 = command[index + len(needle):]
-        command = cmd1 + port + cmd2
-    print(command)
-
     command_input.insert(0, command)
 
 def clear_right_sidebar():
+    """Vymaže obsah pravého panela."""
     for widget in right_sidebar.winfo_children():
         widget.destroy()
 
 def update_target():
+    """Aktualizuje globálne premenné pre cieľ a port zo vstupov."""
     global target, port, open_frame
     if target_input.get().strip() != '':
         target = target_input.get()
@@ -158,19 +149,19 @@ def update_target():
         port = port_input.get()
     else:
         port = "(Port/Služba)"
-
+    
     print(f"Cieľ: {target}, Port: {port}, openframe: {open_frame}")
 
-
 def add_right_button(text, command):
+    """Pridá tlačidlo do pravého panela s daným textom a príkazom."""
     btn = tk.Button(right_sidebar, text=text, font=('Helvetica', 12), bg="#2980b9", fg="white",
                     activebackground="black", activeforeground="white", cursor="hand2",
-                    command=lambda: Run_Button_command(command))
+                    command=lambda: Run_Button_command(command) if isinstance(command, str) else command())
     btn.pack(pady=5, padx=5, fill="x")
 
 
-
 def Clicked_button(Name):
+    """Spracováva kliknutia na tlačidlá v ľavom paneli a aktualizuje pravý panel podľa vybraného nástroja."""
     global open_frame, current_process
 
     if Name == "Exit":
@@ -178,37 +169,37 @@ def Clicked_button(Name):
     elif Name == "Nmap":
         create_console()
         clear_right_sidebar()
-        add_right_button("Konkretný port", "nmap {target} -p {port}")
-        add_right_button("Rozsah portov", "nmap {target} -p (Začiatočný)-(Koncový)")
-        add_right_button("Všetky porty", "nmap {target} -p-")
-        add_right_button("Vyhľadať službu", "nmap {target} -p {port}")
-        add_right_button("Rýchly sken", "nmap {target} -F")
-        add_right_button("Najpoužívanejšie porty", "nmap {target} --top-ports (Počet portov)")
-        add_right_button("Detekcia OS", "nmap -O {target}")
-        add_right_button("Lokálny sken", "nmap {target} -sn")
-        add_right_button("Decoy sken", "nmap -D {Sender IP} {target}")
-        add_right_button("Nastaviť zdrojový port", "nmap -g {port} {target}")
+        add_right_button("Konkretný port", f"nmap {target} -p {port}")
+        add_right_button("Rozsah portov", f"nmap {target} -p (Začiatočný port)-(Koncový port)")
+        add_right_button("Všetky porty", f"nmap {target} -p-")
+        add_right_button("Vyhľadať službu", f"nmap {target} -p {port}")
+        add_right_button("Rýchly sken", f"nmap {target} -F")
+        add_right_button("Najpoužívanejšie porty", f"nmap {target} --top-ports (Počet portov)")
+        add_right_button("Detekcia OS", f"nmap -O {target}")
+        add_right_button("Lokálny sken", f"nmap {target} -sn")
+        add_right_button("Decoy sken", "nmap -D {Sender IP} {Target}")
+        add_right_button("Nastaviť zdrojový port", f"nmap -g {port} {target}")
         open_frame = "Nmap"
         right_sidebar.config(bg="#34495e")
     elif Name == "Gobuster":
         current_process = "Gobuster"
         create_console()
         clear_right_sidebar()
-        add_right_button("Hľadanie adresárov", "gobuster dir -u {target} -w dir.txt")
-        add_right_button("Hľadanie subdomén", "gobuster dns -d {target} -w subdomains.txt")
-        add_right_button("Virtuálé hosty", "gobuster vhost -u http://{target} -w /path/to/wordlist.txt")
-        add_right_button("S3 buckety", "gobuster s3 -u {target} -w /path/to/wordlist.txt")
-        add_right_button("Fuzzovanie URL", "gobuster fuzz -u http://{target}/FUZZ -w /path/to/wordlist.txt")
+        add_right_button("Hľadanie adresárov", f"gobuster dir -u {target} -w dir.txt")
+        add_right_button("Hľadanie subdomén", f"gobuster dns -d {target} -w subdomains.txt")
+        add_right_button("Hľadanie virtuálnych hostov", f"gobuster vhost -u http://{target} -w /path/to/wordlist.txt")
+        add_right_button("Vyhľadávanie S3 bucketov", f"gobuster s3 -u {target} -w /path/to/wordlist.txt")
+        add_right_button("Fuzzovanie URL ciest", f"gobuster fuzz -u http://{target}/FUZZ -w /path/to/wordlist.txt")
         open_frame = "Gobuster"
         right_sidebar.config(bg="#34495e")
     elif Name == "Hydra":
         current_process = "Hydra"
         create_console()
         clear_right_sidebar()
-        add_right_button("Lámač(FTP)", "hydra -t 1 -l {getpass.getuser()} -P passwords.txt {target} ftp")
-        add_right_button("Prihlásenie SSH", "hydra -v -u -L users.txt -P passwords.txt -t 1 {target} ssh")
-        add_right_button("Lámač (Telnet)", "hydra -L users.txt -P passwords.txt {target} telnet")
-        add_right_button("Lámač (SMTP)", "hydra -L users.txt -P passwords.txt {target} smtp")
+        add_right_button("Lámač hesiel (FTP)", f"hydra -t 1 -l {getpass.getuser()} -P passwords.txt {target} ftp")
+        add_right_button("Prihlásenie SSH", f"hydra -v -u -L users.txt -P passwords.txt -t 1 {target} ssh")
+        add_right_button("Lámač hesiel (Telnet)", f"hydra -L users.txt -P passwords.txt {target} telnet")
+        add_right_button("Lámač hesiel (SMTP)", f"hydra -L users.txt -P passwords.txt {target} smtp")
         open_frame = "Hydra"
         right_sidebar.config(bg="#34495e")
     elif Name == "Aircrack-ng":
@@ -221,42 +212,32 @@ def Clicked_button(Name):
         add_right_button("Lámať zachytený súbor", "aircrack-ng -b {MAC} {Súbor}")
         open_frame = "Aircrack-ng"
         right_sidebar.config(bg="#34495e")
-    elif Name == "MACchanger":
-        current_process = "MACchanger"
+    elif Name == "Macchanger":
+        current_process = "Macchanger"
         create_console()
         clear_right_sidebar()
-        add_right_button("Náhodný MAC", "macchanger -r {Zariadenie}")
-        add_right_button("ktuálný MAC", "macchanger -s {Zariadenie}")
-        add_right_button("Originálnu MAC", "macchanger -p {Zariadenie}")
-        add_right_button("Konkrétnu MAC", "macchanger -m 00:11:22:33:44:55 {Zariadenie}")
-        add_right_button("Náhodný MAC výrobcu", "macchanger -a {Zariadenie}")
-        open_frame = "MACchanger"
+        add_right_button("Náhodná zmena MAC", "macchanger -r eth0")
+        add_right_button("Zobraziť aktuálnu MAC", "macchanger -s eth0")
+        add_right_button("Zobraziť originálnu MAC", "macchanger -p eth0")
+        add_right_button("Nastaviť konkrétnu MAC", "macchanger -m 00:11:22:33:44:55 eth0")
+        add_right_button("Výber náhodnej MAC od výrobcu", "macchanger -a eth0")
+        open_frame = "Macchanger"
         right_sidebar.config(bg="#34495e")
     elif Name == "Cheat Sheet":
         current_process = "Cheat Sheet"
         cheat_sheet.main()
-    elif Name == "Nikto":
-        current_process = "Nikto"
-        create_console()
-        clear_right_sidebar()
-        add_right_button("Základný scan", "nikto -h {target}")
-        add_right_button("Scan s tuning", "nikto -h {target} -ask no -Tuning 1")
-        add_right_button("Agresívny Full scan", "nikto -h {target} -C all")
-        open_frame = "Nikto"
-        right_sidebar.config(bg="#34495e")
-        
 
-
+# Vytvorenie hlavného okna (fullscreen)
 window = tk.Tk()
 window.title("Kraken - Nástroj na penetračné testovanie")
 window.config(bg="#1e1e1e")
 window.geometry("1280x720")
 window.bind("<F2>", interrupt_process)
 window.bind("<Control-c>", copy_to_clipboard)
-#window.bind("<Escape>", lambda event: window.destroy())
+window.bind("<Escape>", lambda event: window.destroy())
 window.eval('tk::PlaceWindow . center')
 
-
+# Rozloženie do troch hlavných rámcov
 left_sidebar = tk.Frame(window, width=200, bg="#2c3e50", relief="raised", borderwidth=2)
 left_sidebar.pack(side="left", fill="y")
 
@@ -266,22 +247,14 @@ center_frame.pack(side="left", fill="both", expand=True)
 right_sidebar = tk.Frame(window, width=250, bg="#34495e", relief="raised", borderwidth=2)
 right_sidebar.pack(side="right", fill="y")
 
-
-nav_buttons = ["Nmap", "Gobuster", "Hydra", "Aircrack-ng", "MACchanger","Nikto","Cheat Sheet", "Exit"]
+# Tlačidlá v ľavom paneli
+nav_buttons = ["Nmap", "Gobuster", "Hydra", "Aircrack-ng", "Macchanger","Cheat Sheet", "Exit"]
 for btn_name in nav_buttons:
     btn = tk.Button(left_sidebar, text=btn_name, font=('Helvetica', 14), bg="#3498db", fg="white",
                     command=lambda name=btn_name: Clicked_button(name))
     btn.pack(fill="x", padx=10, pady=5)
 
-def toggle_logging():
-    global logging_enabled, logging_button
-    logging_enabled.set(not logging_enabled.get())
-    if logging_enabled.get():
-        logging_button.config(text="Zakázat logovanie")
-    else:
-        logging_button.config(text="Povolit logovanie")
-    print("Login status:", logging_enabled.get())
-
+# Vstupy pre cieľ a port v ľavom paneli
 target_label = tk.Label(left_sidebar, text="Cieľ/Doména:", font=('Helvetica', 12), bg="#2c3e50", fg="white")
 target_label.pack(fill="x", padx=5, pady=5)
 target_input = tk.Entry(left_sidebar, font=('Helvetica', 12))
@@ -296,8 +269,8 @@ update_button = tk.Button(left_sidebar, text="Aktualizovať cieľ/port", font=('
 update_button.pack(fill="x", padx=5, pady=5)
 
 logging_enabled = tk.BooleanVar(value=False)
-logging_button = tk.Button(left_sidebar, text="Povoliť logovanie",font=('Helvetica', 12),command=toggle_logging,bg="#2c3e50",fg="white")
-logging_button.pack(padx=5, pady=5)
+logging_checkbox = tk.Checkbutton(left_sidebar, text="Povoliť logovanie", font=('Helvetica', 12), variable=logging_enabled, bg="#2c3e50", fg="white")
+logging_checkbox.pack(padx=5, pady=5)
 
 auto_test = tk.Button(left_sidebar, text="Automatizovaný test", font=('Helvetica', 12), bg="#27ae60", fg="white", command=auto_testing)
 auto_test.pack(fill="x", padx=5, pady=5)

@@ -1,3 +1,4 @@
 cloud
 blog
 email
+mail

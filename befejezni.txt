@@ -1,0 +1,5 @@
+schrol bar a cheat ben mindíg 0 legyen
+target legyen frissítve
+Hozzá adni a niktót
+Megnézni a logolással mi van
+automazált tesztelő át csinálása (Dizájn+nikto hozzáadás+log file hoz adni a auto testinget)
