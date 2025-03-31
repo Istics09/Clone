@@ -1,4 +1,4 @@
-cloud
-blog
-email
 mail
+analyze
+cloud
+valami

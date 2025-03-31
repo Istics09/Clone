@@ -76,7 +76,7 @@ def automatization_testing(target_input, root):
         hydra_ssh_command = f"hydra -L users.txt -P passwords.txt ssh://{target}"
         run_command(hydra_ssh_command, "Hydra SSH scan")
     
-    nikto_command = f"nikto -h http://{target} -ask no -Tuning 1 -maxtime 10"
+    nikto_command = f"nikto -h http://{target}/ -ask no -Tuning 1 -maxtime 20"
     run_command_live(nikto_command, "Nikto scan")
 
     logging.info("=== Penetration test completed ===")

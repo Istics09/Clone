@@ -93,10 +93,10 @@ def main():
             ]
         elif tool == "Hydra":
             commands = [
-                ("hydra -L users.txt -P passwords.txt ftp://target", "Brute-force útok na FTP prihlásenie pomocou zoznamu používateľov a hesiel."),
-                ("hydra -L users.txt -P passwords.txt ssh://target", "Brute-force útok na SSH prihlásenie s použitím zoznamu používateľov a hesiel."),
-                ("hydra -L users.txt -P passwords.txt telnet://target", "Brute-force útok na Telnet prihlásenie pomocou zoznamu používateľov a hesiel."),
-                ("hydra -L users.txt -P passwords.txt smtp://target", "Brute-force útok na SMTP autentifikáciu s použitím zoznamu používateľov a hesiel.")
+                ("hydra -L users.txt -P passwords.txt ftp", "Brute-force útok na FTP prihlásenie pomocou zoznamu používateľov a hesiel."),
+                ("hydra -L users.txt -P passwords.txt ssh", "Brute-force útok na SSH prihlásenie s použitím zoznamu používateľov a hesiel."),
+                ("hydra -L users.txt -P passwords.txt telnet", "Brute-force útok na Telnet prihlásenie pomocou zoznamu používateľov a hesiel."),
+                ("hydra -L users.txt -P passwords.txt smtp", "Brute-force útok na SMTP autentifikáciu s použitím zoznamu používateľov a hesiel.")
             ]
         elif tool == "Macchanger":
             commands = [
@@ -137,6 +137,7 @@ def main():
             ]
         elif tool == "Linux":
             commands = [
+                ("decode64 ", "Dokáže dekódovať base64 hash."),
                 ("ls -l", "Zobrazí obsah aktuálneho adresára v detailnom (dlhom) formáte."),
                 ("pwd", "Zobrazí absolútnu cestu (pracovný adresár), v ktorej sa práve nachádzaš."),
                 ("cd /cesta", "Zmení aktuálny adresár na /cesta."),
@@ -149,12 +150,67 @@ def main():
                 ("chmod +x skript.sh", "Pridá spúšťacie (execute) práva pre súbor 'skript.sh'."),
                 ("chown user:group subor.txt", "Zmení vlastníka a skupinu súboru 'subor.txt' na 'user:group'."),
                 ("nano subor.txt", "Otvára textový editor Nano so súborom 'subor.txt'."),
-                ("vim subor.txt", "Otvára textový editor Vim so súborom 'subor.txt'."),
                 ("wget http://example.com/subor.tar.gz", "Stiahne súbor 'subor.tar.gz' z adresy http://example.com."),
                 ("ping -c 4 google.com", "Pošle 4 testovacie pakety na google.com, čím overí sieťové pripojenie."),
                 ("top", "Zobrazí bežiace procesy, využitie CPU a pamäte v reálnom čase."),
             ]           
-          
+        elif tool == "Hashcat":
+            # Vytvorenie špeciálneho rámca pre Hashcat
+            hashcat_frame = tk.Frame(main_frame, bg="#f9f9f9", bd=2, relief="groove")
+            hashcat_frame.pack(fill="both", padx=10, pady=10)
+            
+            # Zoznam príkazov pre Hashcat
+            commands = [
+                ("hashcat -m 100 -a 0 hash.txt passwords.txt", "Spustí slovníkový útok pre SHA1 hashe (hash mód 100)."),
+                ("hashcat -m 1400 -a 0 hash.txt passwords.txt", "Spustí slovníkový útok pre SHA256 hashe (hash mód 1400)."),
+                ("hashcat -m 1700 -a 0 hash.txt passwords.txt", "Spustí slovníkový útok pre SHA512 hashe (hash mód 1700)."),
+                ("hashcat --show -m 100 hash.txt passwords.txt", "Zobrazuje prelomené SHA1 hashe uložené v potfile."),
+                ("hashcat --show -m 1400 hash.txt passwords.txt", "Zobrazuje prelomené SHA256 hashe uložené v potfile.")
+            ]
+            
+            # Pridanie príkazov do rámca
+            for cmd, desc in commands:
+                section_frame = tk.Frame(hashcat_frame, bg="white", pady=5)
+                section_frame.pack(fill="x", padx=10, pady=5)
+                command_label = tk.Label(section_frame, text=cmd, font=command_font, bg="#ecf0f1",
+                                        anchor="w", justify="left", padx=5, pady=5)
+                command_label.pack(fill="x")
+                desc_label = tk.Label(section_frame, text=desc, font=description_font, bg="white",
+                                    anchor="w", justify="left", wraplength=550)
+                desc_label.pack(fill="x", pady=(2, 5))
+                copy_button = tk.Button(section_frame, text="Kopírovať", command=lambda cmd=cmd: copy_to_clipboard(cmd))
+                copy_button.pack(anchor="e", padx=5, pady=2)
+            
+            # Pridanie tabuľky s referenčnými hash módy na spodok
+            table_frame = tk.Frame(hashcat_frame, bg="white", bd=1, relief="solid")
+            table_frame.pack(fill="x", padx=10, pady=10)
+            
+            # Hlavička tabuľky
+            header_hash = tk.Label(table_frame, text="Typ šifrovania", font=description_font, bg="#dcdcdc", width=20)
+            header_mode = tk.Label(table_frame, text="Identifikačné číslo", font=description_font, bg="#dcdcdc", width=20)
+            header_hash.grid(row=0, column=0, padx=5, pady=5)
+            header_mode.grid(row=0, column=1, padx=5, pady=5)
+            
+            # Dáta tabuľky
+            table_data = [
+                ("MD5", "0"),
+                ("SHA1", "100"), 
+                ("MySQL4.1/MySQL5", "300"),
+                ("MD4", "900"),
+                ("NTLM", "1000"),
+                ("SHA256", "1400"),
+                ("SHA512", "1700"),
+                ("descrypt, DES (Unix)", "1500"),
+                ("SHA-3", "5000"),  
+                ("CRC32", "11500"),
+            ]
+
+            
+            for i, (hash_type, mode_number) in enumerate(table_data, start=1):
+                label_hash = tk.Label(table_frame, text=hash_type, font=command_font, bg="white", width=20, anchor="w")
+                label_mode = tk.Label(table_frame, text=mode_number, font=command_font, bg="white", width=20, anchor="w")
+                label_hash.grid(row=i, column=0, padx=5, pady=2, sticky="w")
+                label_mode.grid(row=i, column=1, padx=5, pady=2, sticky="w")
         else:
             commands = []
         
@@ -164,7 +220,7 @@ def main():
         canvas.yview_moveto(0)
     
     # Vytvorenie tlačidiel v ľavom sidebar-e
-    tools_list = ["Nmap", "Gobuster", "Hydra", "Macchanger","Nikto", "Linux"]
+    tools_list = ["Nmap", "Gobuster", "Hydra", "Hashcat","Macchanger","Nikto", "Linux"]
     for t in tools_list:
         if t == "Exit":
             btn = tk.Button(sidebar, text=t, font=description_font, command=root.quit, bg="#e74c3c", fg="white")

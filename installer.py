@@ -12,7 +12,7 @@ def log(message):
     output_text.config(state="disabled")
 
 def install_tools():
-    # Zoznam inštalovateľných nástrojov: kľúč je názov (pre informáciu), hodnota je balík pre apt-get
+    # Zoznam inštalovateľných nástrojov
     tools = {
         "Nmap": "nmap",
         "Gobuster": "gobuster",
@@ -25,7 +25,6 @@ def install_tools():
 
     log("Spúšťam inštaláciu...\n\n")
     
-    # Najprv vykonáme update repozitárov
     update_cmd = "apt-get update"
     log(f"Spúšťam: {update_cmd}\n")
     try:
@@ -39,7 +38,6 @@ def install_tools():
         log(f"Výnimka počas apt-get update: {e}\n")
         return
 
-    # Inštalácia jednotlivých nástrojov
     for tool_name, package in tools.items():
         cmd = f"apt-get install -y {package}"
         log(f"\nInštalujem {tool_name} príkazom: {cmd}\n")
