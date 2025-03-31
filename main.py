@@ -11,6 +11,7 @@ current_process = None
 open_frame = None
 target = "{Domain/IP}"
 port = "{Port/Služba}"
+hashcat_type_var = None
 
 
 x = datetime.datetime.now()
@@ -170,8 +171,22 @@ def Run_Button_command(command):
         cmd1 = command[:index]
         cmd2 = command[index + len(needle):]
         command = cmd1 + port + cmd2
-    print(command)
-
+        
+     # Nahradenie {typ šifrovania} ak existuje a ak je nastavená hodnota iná ako "None"/"null"
+    needle = "{typ šifrovania}"
+    index = command.find(needle)
+    if not index == -1:
+        try:
+            encryption_code = hashcat_type_var.get()
+            if encryption_code not in ["None", "null", ""]:
+                cmd1 = command[:index]
+                cmd2 = command[index + len(needle):]
+                command = cmd1 + encryption_code + cmd2
+        except Exception:
+            pass    
+        
+        
+    #print(command)
     command_input.insert(0, command)
 
 def clear_right_sidebar():
@@ -179,16 +194,7 @@ def clear_right_sidebar():
         widget.destroy()
         
 def autocomplete(event):
-    """
-    Autocomplete pre file system cesty.
-    Ak je aktuálny text v command_input napr. "cd Seclists" alebo "cd /home/us",
-    funkcia zistí, ktoré položky v príslušnom adresári začínajú na zadaný prefix a:
-      - ak je iba jedna, automaticky doplní celú cestu;
-      - ak je viacero, vypíše ich do output_text.
-    """
-    # Získame aktuálny text
     text = command_input.get()
-    # Rozdelíme text na tokeny (predpokladáme oddelenie medzerou)
     tokens = text.split()
     if not tokens:
         return "break"
@@ -196,17 +202,14 @@ def autocomplete(event):
     
     sep = os.sep
     if sep in last_token:
-        # Ak už je zadaná cesta (obsahuje /), rozdelíme ju na adresár a prefix
         dir_part = os.path.dirname(last_token)
         prefix = os.path.basename(last_token)
         if not dir_part:
             dir_part = "."
     else:
-        # Ak token neobsahuje lomítko, predpokladáme, že ide o názov v aktuálnom adresári.
-        dir_part = os.getcwd()  # Alebo môžete nastaviť iný predvolený adresár
+        dir_part = os.getcwd()  
         prefix = last_token
     
-    # Rozšírenie user (ak je použitý ~)
     dir_part = os.path.expanduser(dir_part)
     
     try:
@@ -442,9 +445,26 @@ def Clicked_button(Name):
         open_frame = "Hydra"
         right_sidebar.config(bg="#34495e")
     elif Name == "Hashcat":
+        global hashcat_type_var  # pridaj hashcat_type_var ako global
         current_process = "Hashcat"
         create_console()
         clear_right_sidebar()
+        
+        hashcat_type_var = tk.StringVar(value="None")
+        label = tk.Label(right_sidebar, text="Vyberte typ šifrovania:", font=('Helvetica', 12), bg="#34495e", fg="white")
+        label.pack(pady=5)
+        dropdown = tk.OptionMenu(right_sidebar, hashcat_type_var, "None", "100 (SHA1)", "1400 (SHA256)")
+        dropdown.config(font=('Helvetica', 12), bg="#2980b9", fg="white")
+        dropdown["menu"].config(font=('Helvetica', 12))
+        dropdown.pack(pady=5, padx=5, fill="x")
+        def dropdown_callback(*args):
+            value = hashcat_type_var.get()
+            if value not in ["None", "null"]:
+                number = value.split()[0]
+                hashcat_type_var.set(number)
+        hashcat_type_var.trace("w", dropdown_callback)
+        
+        
         
         add_right_button(
             "Dictionary Attack",
@@ -476,6 +496,13 @@ def Clicked_button(Name):
         "Odborne zobrazuje prelomené heslá uložené v potfile. Parameter {typ šifrovania} určuje typ šifrovania pre správnu interpretáciu výsledkov."
         )
         
+        add_right_button(
+        "Zmeniť obsah hash.txt",
+        "echo \"\" > hash.txt",
+        "Aktualizujeme obsah hash.txt ktorý môžeme použiť pri útoku"
+        )
+        
+        
         
         open_frame = "Hashcat"
         right_sidebar.config(bg="#34495e")
@@ -483,6 +510,14 @@ def Clicked_button(Name):
         current_process = "MACchanger"
         create_console()
         clear_right_sidebar()
+        
+        add_right_button(
+            "Zobraziť dosutpné zariadenia",
+            "ip -o link show | awk -F': ' '{print $2}'",
+            "Zobrazia sa Vám dostupné zariadenia pre bezdrôtové pripojenie"
+        )
+        
+        
         add_right_button(
             "Náhodný MAC",
             "macchanger -r {Zariadenie}",
@@ -564,7 +599,7 @@ tooltip_texts = {
     "Gobuster": "Gobuster pomáha objaviť skryté adresáre a poddomény na webovej stránke.",
     "Hydra": "Hydra skúša rôzne kombinácie hesiel pre pripojenie, aby otestovala bezpečnosť " +
              "hesiel na rôznych službách.",
-    "Aircrack-ng": "Aircrack-ng vám umožní sledovať WiFi siete a zistiť, aké sú ich bezpečnostné nastavenia.",
+    "Hashcat": "Výkonný nástroj na prelomenie hesiel, ktorý využíva GPU akceleráciu a ponúka slovníkové, brute-force, hybridné a kombinatorické útoky pre prelomenie rôznych hashov.",
     "MACchanger": "MACchanger umožňuje zmeniť identifikačné číslo sieťového adaptéra, čo môže pomôcť " +
                    "pri zachovaní vašej anonymity.",
     "Nikto": "Nikto prehľadá webový server a nájde bežné bezpečnostné chyby, čím pomáha zabezpečiť web.",
