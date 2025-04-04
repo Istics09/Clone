@@ -517,6 +517,18 @@ def Clicked_button(Name):
             "Zobrazia sa Vám dostupné zariadenia pre bezdrôtové pripojenie"
         )
         
+        add_right_button(
+            "Vypnuť zariadenie",
+            "ifconfig {zariadenie} down",
+            "Pred zmenou fyzickej adresi je potrebné aby toto zariadenie nebolo zapnute"
+        )
+        
+        
+        add_right_button(
+            "Zapnutie zariadenia",
+            "ifconfig {zariadenie} up",
+            "Po zmene fyzickej adresi je možné opätovne spustiť zariadenie aby sme sa mohli prihlásiť"
+        )
         
         add_right_button(
             "Náhodný MAC",
@@ -575,11 +587,9 @@ def Clicked_button(Name):
 window = tk.Tk()
 window.title("Kraken - Nástroj na penetračné testovanie")
 window.config(bg="#1e1e1e")
-#window.geometry("1380x920")
 window.attributes('-fullscreen', True)
 window.bind("<F2>", interrupt_process)
 window.bind("<Control-c>", copy_to_clipboard)
-#window.bind("<Escape>", lambda event: window.destroy())
 window.eval('tk::PlaceWindow . center')
 
 
@@ -597,10 +607,10 @@ tooltip_texts = {
     "Nmap": "Tento nástroj vám pomôže zistiť, ktoré " +
             "porty na cieľovom počítači sú otvorené a aké služby bežia.",
     "Gobuster": "Gobuster pomáha objaviť skryté adresáre a poddomény na webovej stránke.",
-    "Hydra": "Hydra skúša rôzne kombinácie hesiel pre pripojenie, aby otestovala bezpečnosť " +
+    "Hydra": "Hydra skúša rôzne kombinácie hesiel pre pripojenie, aby otestovala bezpečnosť "
              "hesiel na rôznych službách.",
-    "Hashcat": "Výkonný nástroj na prelomenie hesiel, ktorý využíva GPU akceleráciu a ponúka slovníkové, brute-force, hybridné a kombinatorické útoky pre prelomenie rôznych hashov.",
-    "MACchanger": "MACchanger umožňuje zmeniť identifikačné číslo sieťového adaptéra, čo môže pomôcť " +
+    "Hashcat": "Výkonný nástroj na prelomenie hesiel, ktorý ponúka slovníkové, brute-force, hybridné a kombinatorické útoky pre prelomenie rôznych hashov.",
+    "MACchanger": "MACchanger umožňuje zmeniť identifikačné číslo sieťového adaptéra, čo môže pomôcť "
                    "pri zachovaní vašej anonymity.",
     "Nikto": "Nikto prehľadá webový server a nájde bežné bezpečnostné chyby, čím pomáha zabezpečiť web.",
     "Cheat Sheet": "Cheat Sheet obsahuje prehľad základných príkazov a tipov, ktoré vám uľahčia prácu s nástrojmi.",
